@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { colorPalette } from "./colorPalette-trc";
+import { getHues } from "./getHues";
 
 const width = 960;
 const height = 500;
@@ -20,8 +21,8 @@ const svg = d3
 const rotations = [330, 30, 120, 180, 240];
 const originalColorHex = "#afdef4";
 
+const colors = getHues(originalColorHex, rotations)
 const palette = colorPalette()
-  .rotations(rotations)
-  .originalColorHex(originalColorHex);
+  .baseColors(colors);
 
 svg.call(palette);

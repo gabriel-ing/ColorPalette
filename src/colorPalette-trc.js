@@ -1,19 +1,7 @@
 import { wrap } from "./wrapText";
 
-function getColorByHueRotation(originalColor, theta) {
-  let complementObject = d3.hsl(originalColor);
-  complementObject.h += theta;
-  // console.log(complementObject);
-  return {
-    colorName: `hue + ${theta}°`,
-    hex: complementObject.formatHex(),
-    colorObject: complementObject,
-  };
-}
-
 export const colorPalette = () => {
-  let originalColorHex;
-  let rotations;
+  let baseColors;
   let margin = { top: 20, right: 10, bottom: 0, left: 80 };
   let nShades = 8;
 
@@ -22,19 +10,6 @@ export const colorPalette = () => {
     const width = selection.node().getBoundingClientRect().width;
     const height = selection.node().getBoundingClientRect().height;
     selection.attr("viewBox", `0 0 ${width} ${height}`);
-
-    const originalColor = {
-      colorName: "Original Colour",
-      hex: originalColorHex,
-    };
-
-    originalColor["colorObject"] = d3.color(originalColor.hex);
-    const baseColors = [];
-    baseColors.push(originalColor);
-
-    rotations.forEach((theta) => {
-      baseColors.push(getColorByHueRotation(originalColor.colorObject, theta));
-    });
 
     console.log(baseColors);
     const tooltip = d3.select("#tooltip");
@@ -58,8 +33,8 @@ export const colorPalette = () => {
     const columnWidth =
       (width - margin.left - margin.right) / baseColors.length - padding;
     const rectHeight = height / (nShades + 1) - padding;
-    cols
-      .selectAll("rect")
+    const rows = cols
+      .selectAll("g")
       .data((column) => {
         const color = d3.color(column.hex);
         const hsl = d3.hsl(color);
@@ -86,11 +61,17 @@ export const colorPalette = () => {
         //   .domain([-1, nShades / 2, nShades + 1])
         //   .range(['white', column.hex, 'black']);
 
-        const colors = d3.range(nShades).map((d) => ({
-          i: d,
-          rgb: colorScale(d),
-          hex: d3.color(colorScale(d)).formatHex(),
-        }));
+        const colors = d3.range(nShades).map((d) => {
+          const textColor = d3.hsl(colorScale(d));
+          textColor.s = 0;
+          textColor.l = 1-textColor.l
+          return {
+            i: d,
+            rgb: colorScale(d),
+            hex: d3.color(colorScale(d)).formatHex(),
+            textColor: textColor.formatHex(),
+          };
+        });
         colors.unshift({
           i: hsl.l > 0.5 ? 0 : nShades,
           rgb: d3.color(column.hex).formatRgb(),
@@ -98,13 +79,19 @@ export const colorPalette = () => {
         });
         return colors;
       })
+      .join("g")
+      .attr("class", "column-row")
+      .attr("transform", (d, i) => `translate(0, ${yPos(d, i)})`);
+    rows
+      .selectAll("rect")
+      .data((node) => [node])
       .join("rect")
       .attr("class", "color-square")
       .attr("width", columnWidth)
       .attr("height", rectHeight)
       .attr("stroke", "#c9c9c9")
       .attr("stroke-width", 0.5)
-      .attr("y", yPos)
+      .attr("y", 0)
       .attr("fill", (d) => d.rgb)
       .on("click", (event, d) => {
         navigator.clipboard.writeText(d.hex);
@@ -121,6 +108,15 @@ export const colorPalette = () => {
         tooltip.transition().duration(800).delay(10).style("opacity", 0);
       });
 
+    rows
+      .selectAll("text")
+      .data((node) => [node])
+      .join("text")
+      .attr("class", "hex-label")
+      .attr("fill", (d) => d.textColor)
+      .attr("y", rectHeight - padding)
+      .attr("x", padding)
+      .text((d) => d.hex);
     selection
       .selectAll("line")
       .data([null])
@@ -163,12 +159,9 @@ export const colorPalette = () => {
       .text((d) => d)
       .call(wrap, 50);
   };
-  my.originalColorHex = function (_) {
-    return arguments.length ? ((originalColorHex = _), my) : originalColorHex;
-  };
 
-  my.rotations = function (_) {
-    return arguments.length ? ((rotations = _), my) : rotations;
+  my.baseColors = function (_) {
+    return arguments.length ? ((baseColors = _), my) : baseColors;
   };
   my.margin = function (_) {
     return arguments.length ? ((margin = _), my) : margin;
