@@ -28,11 +28,17 @@
       body {
         font-family: arial;
       }
+      p {
+        font-size: 15px;
+        line-height: 1.3em;
+        margin-bottom: 10px;
+      }
       #palette {
         width: 1000px;
         height: 700px;
         flex-grow: 1;
         flex-shrink: 1;
+        margin: 30px 0px;
       }
       .hex-label {
         font-size: 12px;
@@ -60,10 +66,55 @@
         font-size: 18px;
         font-weight: 600;
       }
+      .button-container {
+        display: flex;
+        margin: auto;
+        justify-items: center;
+      }
+      button {
+        margin: 10px;
+        /* height: 40px; */
+        width: 100px;
+        font-size: 15px;
+        font-weight: 400;
+      }
     </style>
   </head>
   <body>
     <h1>Colour Palette Generator</h1>
+    <p>
+      This is a tool to generate a neatly displayed colour palette. Colour
+      palettes can be created from a single initial colour (hex code) or
+      existing colour palettes can be entered as a list of hex values.
+    </p>
+    <p>
+      Colour palette generation is performed by altering the hue value of the
+      <a
+        href="https://www.nixsensor.com/what-is-hsl-color/?srsltid=AfmBOopnKqUtj5_dmxeIfpSQvLAvos1fAaCkSQ7uMngOYGu-DvyzLJV8"
+        >HSL colour wheel</a
+      >. The hue is altered by set values (I like to think of them as
+      rotations). By using evenly spread values, nice colour palettes can be
+      generated. I have included some default options which tend to look nice,
+      but feel free to test your own custom rotations (as a comma separated
+      list).
+    </p>
+    <p>
+      Once the hues are added, the lightness of the colour is altered from 10%
+      to 90%, to create a nice range of dark and light colours. I probably would
+      avoid using all the shades of each colour, but its nice to have a range of
+      shades for different use cases.
+    </p>
+    <p>
+      Be aware, the saturation value is constant throughout the colour palette,
+      which means over or under saturated initial colours may create poor colour
+      palettes.
+    </p>
+    <p>
+      The url created from generating the colour has all the parameters to
+      create the palette, so feel free to save or share a link if you like a
+      palette. You can also save the palette as an image or as a JSON object
+      (buttons at bottom), perfect for future use.
+    </p>
     <div class="form-container">
       <div class="customise-options">
         <h2 class="form-header">Generate palette from an initial colour:</h2>
@@ -100,6 +151,22 @@
           />
           <label for="divergent">Divergent [60, 120, 180, 240, 300]</label
           ><br />
+          <input
+          type="radio"
+          id="goldenRatio"
+          name="rotation"
+          value="goldenRatio"
+        />
+        <label for="goldenRatio">Golden Ratio [32.5, 52.5, 85.0, 137.5, 222.5]</label
+        ><br />
+        <input
+          type="radio"
+          id="goldenRatio2"
+          name="rotation"
+          value="goldenRatio2"
+        />
+        <label for="goldenRatio2">Golden Ratio 2 [-32.5, -52.5, -85.0, -137.5, -222.5]</label
+        ><br />
           <input type="radio" id="custom" name="rotation" value="custom" />
           <label for="custom">Custom</label>
           <input type="text" id="custom-rotation" name="customRotation" />
@@ -129,8 +196,10 @@
     <div class="flex">
       <div id="palette"></div>
     </div>
-    <button onclick="saveChart('palette-svg')">Save Image</button>
-    <button onclick="saveJson()">Save JSON</button>
+    <div class="button-container">
+      <button onclick="saveChart('palette-svg')">Save Image</button>
+      <button onclick="saveJson()">Save JSON</button>
+    </div>
     <div id="tooltip"></div>
 
     <script src="bundle.js"></script>

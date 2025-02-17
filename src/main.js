@@ -17,6 +17,10 @@ params.get("rotation")
   ? (document.getElementById(params.get("rotation")).checked = true)
   : console.log(params.get("rotation"));
 document.getElementById("hex-list").value = params.get("hexList");
+params.get("rotation") === "custom"
+  ? (document.getElementById("custom-rotation").value =
+      params.get("customRotation"))
+  : null;
 
 // Create the list of colours
 const colors = getColors(params);

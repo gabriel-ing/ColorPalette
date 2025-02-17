@@ -13,6 +13,8 @@ const rotationOptions = {
   default2: [-60, 60, 150, 180, 210],
   analogous: [20, 40, 60, 80, 100, 120],
   divergent: [60, 120, 180, 240, 300],
+  goldenRatio: [32.5, 52.5, 85.0, 137.5, 222.5],
+  goldenRatio2: [-32.5, -52.5, -85.0, -137.5, -222.5],
 };
 export function getColors(params) {
   let colors;
@@ -28,22 +30,19 @@ export function getColors(params) {
     }
 
     if (params.get("rotation") === "custom") {
-      console.log(true);
       rotations = params
         .get("customRotation")
         .split(",")
         .map((d) => Number(d.trim()));
-      if (!rotations | rotations.length===1) {
-        
+      if (!rotations | (rotations.length === 1)) {
         alert("Please enter hue values as a comma separated list");
         colors = setDefaultColors();
-        return colors
+        return colors;
       }
     } else {
-      console.log(false);
       rotations = rotationOptions[params.get("rotation")];
     }
-    console.log(rotations);
+
     colors = getHues(hexInput, rotations);
   } else if (params.get("hexList")) {
     const hexListInput = params.get("hexList");

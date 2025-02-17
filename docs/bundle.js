@@ -2981,29 +2981,29 @@
   };
 
   function getColorByHueRotation(originalColor, theta) {
-      let complementObject = d3.hsl(originalColor);
-      complementObject.h += theta;
-      // console.log(complementObject);
-      return {
-        colorName: `hue + ${theta}°`,
-        hex: complementObject.formatHex(),
-        colorObject: complementObject,
-      };
-    }
+    let complementObject = d3.hsl(originalColor);
+    complementObject.h += theta;
+    // console.log(complementObject);
+    return {
+      colorName: theta > 0 ? `+${theta}°` : `${theta}°`,
+      hex: complementObject.formatHex(),
+      colorObject: complementObject,
+    };
+  }
 
   const getHues = (originalHex, rotations) => {
-      const originalColor = {
-          colorName: "Original Colour",
-          hex: originalHex,
-        };
-    
-        originalColor["colorObject"] = d3.color(originalColor.hex);
-        const baseColors = [];
-        baseColors.push(originalColor);
-    
-        rotations.forEach((theta) => {
-          baseColors.push(getColorByHueRotation(originalColor.colorObject, theta));
-        });
+    const originalColor = {
+      colorName: "Original Colour",
+      hex: originalHex,
+    };
+
+    originalColor["colorObject"] = d3.color(originalColor.hex);
+    const baseColors = [];
+    baseColors.push(originalColor);
+
+    rotations.forEach((theta) => {
+      baseColors.push(getColorByHueRotation(originalColor.colorObject, theta));
+    });
     return baseColors;
   };
 
@@ -3019,6 +3019,8 @@
     default2: [-60, 60, 150, 180, 210],
     analogous: [20, 40, 60, 80, 100, 120],
     divergent: [60, 120, 180, 240, 300],
+    goldenRatio: [32.5, 52.5, 85.0, 137.5, 222.5],
+    goldenRatio2: [-32.5, -52.5, -85.0, -137.5, -222.5],
   };
   function getColors(params) {
     let colors;
@@ -3034,22 +3036,19 @@
       }
 
       if (params.get("rotation") === "custom") {
-        console.log(true);
         rotations = params
           .get("customRotation")
           .split(",")
           .map((d) => Number(d.trim()));
-        if (!rotations | rotations.length===1) {
-          
+        if (!rotations | (rotations.length === 1)) {
           alert("Please enter hue values as a comma separated list");
           colors = setDefaultColors();
-          return colors
+          return colors;
         }
       } else {
-        console.log(false);
         rotations = rotationOptions[params.get("rotation")];
       }
-      console.log(rotations);
+
       colors = getHues(hexInput, rotations);
     } else if (params.get("hexList")) {
       const hexListInput = params.get("hexList");
@@ -3084,7 +3083,7 @@
         lightness: d.lightness,
       }));
 
-    const baseColorsJSON = JSON.stringify(baseColors);
+    const baseColorsJSON = JSON.stringify(baseColors,null, 2);
 
     const colorsBlob = new Blob([baseColorsJSON], { type: "application/json" });
     const fileURL = URL.createObjectURL(colorsBlob);
@@ -3109,6 +3108,10 @@
     ? (document.getElementById(params.get("rotation")).checked = true)
     : console.log(params.get("rotation"));
   document.getElementById("hex-list").value = params.get("hexList");
+  params.get("rotation") === "custom"
+    ? (document.getElementById("custom-rotation").value =
+        params.get("customRotation"))
+    : null;
 
   // Create the list of colours
   const colors = getColors(params);

@@ -12,7 +12,7 @@ export const saveJson = () => {
       lightness: d.lightness,
     }));
 
-  const baseColorsJSON = JSON.stringify(baseColors);
+  const baseColorsJSON = JSON.stringify(baseColors,null, 2);
 
   const colorsBlob = new Blob([baseColorsJSON], { type: "application/json" });
   const fileURL = URL.createObjectURL(colorsBlob);
