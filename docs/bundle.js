@@ -2738,17 +2738,21 @@
             //   textColor.s = 0;
             //   textColor.l = 1-textColor.l
             return {
-              i: d,
+              // i: d,
+              baseColor: column.hex,
               rgb: colorScale(d),
+              lightness: `${(d + 1) * 10}%`,
               hex: d3.color(colorScale(d)).formatHex(),
               textColor: d3.hsl(colorScale(d)).l > 0.6 ? "#363636" : "#e6e6e6",
             };
           });
 
           colors.unshift({
-            i: hsl.l > 0.5 ? 0 : nShades,
+            // i: hsl.l > 0.5 ? 0 : nShades,
+            baseColor: "True",
             rgb: d3.color(column.hex).formatRgb(),
             hex: column.hex,
+            lightness: "n/a",
             textColor: d3.hsl(column.hex).l > 0.5 ? "#363636" : "#e6e6e6",
           });
           return colors;
@@ -2834,7 +2838,7 @@
         .attr("dy", "0.1em")
         .attr("y", (d, i) => yPos(d, i) + rectHeight / 2)
         .text((d) => d);
-        // .call(wrap, 50);
+      // .call(wrap, 50);
       selection
         .selectAll(".lightness-label")
         .data([null])
@@ -2864,33 +2868,6 @@
       return arguments.length ? ((nShades = _), my) : nShades;
     };
     return my;
-  };
-
-  function getColorByHueRotation(originalColor, theta) {
-      let complementObject = d3.hsl(originalColor);
-      complementObject.h += theta;
-      // console.log(complementObject);
-      return {
-        colorName: `hue + ${theta}°`,
-        hex: complementObject.formatHex(),
-        colorObject: complementObject,
-      };
-    }
-
-  const getHues = (originalHex, rotations) => {
-      const originalColor = {
-          colorName: "Original Colour",
-          hex: originalHex,
-        };
-    
-        originalColor["colorObject"] = d3.color(originalColor.hex);
-        const baseColors = [];
-        baseColors.push(originalColor);
-    
-        rotations.forEach((theta) => {
-          baseColors.push(getColorByHueRotation(originalColor.colorObject, theta));
-        });
-    return baseColors;
   };
 
   function serialize(svg) {
@@ -3003,60 +2980,31 @@
     downloadLink.click();
   };
 
-  const createPaletteFromInitial = (event) => {
-  //   event.preventDefault();
-
-    const originalColorHex = event.target.hexInput.value;
-    if (!color(originalColorHex)) {
-      alert(
-        `Error - ${originalColorHex} is not a hex colour, please input a valid colour`
-      );
-      return -1;
+  function getColorByHueRotation(originalColor, theta) {
+      let complementObject = d3.hsl(originalColor);
+      complementObject.h += theta;
+      // console.log(complementObject);
+      return {
+        colorName: `hue + ${theta}°`,
+        hex: complementObject.formatHex(),
+        colorObject: complementObject,
+      };
     }
 
-
-
-    const rotationOptions = {
-      default1: [-30, 30, 120, 180, 240],
-      default2: [-60, 60, 150, 180, 210],
-      analogous:[20, 40, 60, 80, 100],
-      divergent: [60, 120, 180, 240, 300],
-    };
-
-    const svg = select("#palette-svg");
-    //   svg.append("rect").attr("width", 100).height("height", 100)
-    //   console.log(svg)
-
-    console.log(event.target.rotation.value);
-    const rotations = rotationOptions[event.target.rotation.value];
-    console.log(rotations);
-    const colors = getHues(originalColorHex, rotations);
-    const palette = colorPalette().baseColors(colors);
-
-    svg.call(palette);
-  };
-
-  const plotCustomPalette = (event)=>{
-      // event.preventDefault();
-      
-      const hexListInput = event.target.hexList.value;
-
-      const svg = select("#palette-svg");
-      
-      let colors = hexListInput.split(",").map(d=> d.trim());
-      colors.forEach(color$1=>{
-          
-          // console.log(d3.color(color))
-          if (!color(color$1)){
-              alert(`Error! ${color$1} is not a valid colour hex code, please enter valid colours.`);
-              return -1
-          }
-      });
-      colors = colors.map(d=> ({hex: d}));
-      const palette = colorPalette().baseColors(colors);
+  const getHues = (originalHex, rotations) => {
+      const originalColor = {
+          colorName: "Original Colour",
+          hex: originalHex,
+        };
     
-      svg.call(palette);
-      
+        originalColor["colorObject"] = d3.color(originalColor.hex);
+        const baseColors = [];
+        baseColors.push(originalColor);
+    
+        rotations.forEach((theta) => {
+          baseColors.push(getColorByHueRotation(originalColor.colorObject, theta));
+        });
+    return baseColors;
   };
 
   const setDefaultColors = (colors) => {
@@ -3067,14 +3015,15 @@
   };
 
   const rotationOptions = {
-      default1: [-30, 30, 120, 180, 240],
-      default2: [-60, 60, 150, 180, 210],
-      analogous: [20, 40, 60, 80, 100],
-      divergent: [60, 120, 180, 240, 300],
-    };
+    default1: [-30, 30, 120, 180, 240],
+    default2: [-60, 60, 150, 180, 210],
+    analogous: [20, 40, 60, 80, 100, 120],
+    divergent: [60, 120, 180, 240, 300],
+  };
   function getColors(params) {
     let colors;
     if (params.get("hexInput") && params.get("rotation")) {
+      let rotations;
       const hexInput = params.get("hexInput");
       if (!color(hexInput)) {
         alert(
@@ -3084,7 +3033,23 @@
         return colors;
       }
 
-      const rotations = rotationOptions[params.get("rotation")];
+      if (params.get("rotation") === "custom") {
+        console.log(true);
+        rotations = params
+          .get("customRotation")
+          .split(",")
+          .map((d) => Number(d.trim()));
+        if (!rotations | rotations.length===1) {
+          
+          alert("Please enter hue values as a comma separated list");
+          colors = setDefaultColors();
+          return colors
+        }
+      } else {
+        console.log(false);
+        rotations = rotationOptions[params.get("rotation")];
+      }
+      console.log(rotations);
       colors = getHues(hexInput, rotations);
     } else if (params.get("hexList")) {
       const hexListInput = params.get("hexList");
@@ -3107,27 +3072,57 @@
     return colors;
   }
 
+  const saveJson = () => {
+    const palette = select("#palette-svg");
+    const baseColors = palette
+      .selectAll("rect")
+      .data()
+      .map((d) => ({
+        baseColor: d.baseColor,
+        rgb: d.rgb,
+        hex: d.hex,
+        lightness: d.lightness,
+      }));
+
+    const baseColorsJSON = JSON.stringify(baseColors);
+
+    const colorsBlob = new Blob([baseColorsJSON], { type: "application/json" });
+    const fileURL = URL.createObjectURL(colorsBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = fileURL;
+    downloadLink.download = `color-palette.json`;
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+  };
+
+  //Set all the save button functions
   window.saveChart = saveChart;
-  window.createPaletteFromInitial = createPaletteFromInitial;
-  window.plotCustomPalette = plotCustomPalette;
+  window.saveJson = saveJson;
 
-
-
-
+  // Get current parameters
   const params = new URLSearchParams(window.location.search);
+
+  //Set current state of input parameters:
+  document.getElementById("hex-input").value = params.get("hexInput");
+  params.get("rotation")
+    ? (document.getElementById(params.get("rotation")).checked = true)
+    : console.log(params.get("rotation"));
+  document.getElementById("hex-list").value = params.get("hexList");
+
+  // Create the list of colours
   const colors = getColors(params);
-  console.log(colors);
-  // console.log(colors);
+
+  // Append the svg
   const svg = select("#palette")
     .append("svg")
     .attr("id", "palette-svg")
     .attr("preserveAspectRatio", "xMinYMin meet")
-    // .attr("viewBox", "0 0 600 400")
     .attr("width", "100%")
     .attr("height", "100%");
 
+  // Create the image with the palette object
   const palette = colorPalette().baseColors(colors);
-
   svg.call(palette);
 
 })();

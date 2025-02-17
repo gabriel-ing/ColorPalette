@@ -9,14 +9,15 @@ const setDefaultColors = (colors) => {
 };
 
 const rotationOptions = {
-    default1: [-30, 30, 120, 180, 240],
-    default2: [-60, 60, 150, 180, 210],
-    analogous: [20, 40, 60, 80, 100],
-    divergent: [60, 120, 180, 240, 300],
-  };
+  default1: [-30, 30, 120, 180, 240],
+  default2: [-60, 60, 150, 180, 210],
+  analogous: [20, 40, 60, 80, 100, 120],
+  divergent: [60, 120, 180, 240, 300],
+};
 export function getColors(params) {
   let colors;
   if (params.get("hexInput") && params.get("rotation")) {
+    let rotations;
     const hexInput = params.get("hexInput");
     if (!d3.color(hexInput)) {
       alert(
@@ -26,7 +27,23 @@ export function getColors(params) {
       return colors;
     }
 
-    const rotations = rotationOptions[params.get("rotation")];
+    if (params.get("rotation") === "custom") {
+      console.log(true);
+      rotations = params
+        .get("customRotation")
+        .split(",")
+        .map((d) => Number(d.trim()));
+      if (!rotations | rotations.length===1) {
+        
+        alert("Please enter hue values as a comma separated list");
+        colors = setDefaultColors();
+        return colors
+      }
+    } else {
+      console.log(false);
+      rotations = rotationOptions[params.get("rotation")];
+    }
+    console.log(rotations);
     colors = getHues(hexInput, rotations);
   } else if (params.get("hexList")) {
     const hexListInput = params.get("hexList");

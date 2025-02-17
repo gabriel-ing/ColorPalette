@@ -68,17 +68,21 @@ export const colorPalette = () => {
           //   textColor.s = 0;
           //   textColor.l = 1-textColor.l
           return {
-            i: d,
+            // i: d,
+            baseColor: column.hex,
             rgb: colorScale(d),
+            lightness: `${(d + 1) * 10}%`,
             hex: d3.color(colorScale(d)).formatHex(),
             textColor: d3.hsl(colorScale(d)).l > 0.6 ? "#363636" : "#e6e6e6",
           };
         });
 
         colors.unshift({
-          i: hsl.l > 0.5 ? 0 : nShades,
+          // i: hsl.l > 0.5 ? 0 : nShades,
+          baseColor: "True",
           rgb: d3.color(column.hex).formatRgb(),
           hex: column.hex,
+          lightness: "n/a",
           textColor: d3.hsl(column.hex).l > 0.5 ? "#363636" : "#e6e6e6",
         });
         return colors;
@@ -163,8 +167,8 @@ export const colorPalette = () => {
       .attr("text-align", "middle")
       .attr("dy", "0.1em")
       .attr("y", (d, i) => yPos(d, i) + rectHeight / 2)
-      .text((d) => d)
-      // .call(wrap, 50);
+      .text((d) => d);
+    // .call(wrap, 50);
     selection
       .selectAll(".lightness-label")
       .data([null])
