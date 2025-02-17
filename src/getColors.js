@@ -44,7 +44,7 @@ export function getColors(params) {
     });
     colors = colorList.map((d) => ({ hex: d }));
   } else {
-    setDefaultColors();
+    colors = setDefaultColors();
   }
   return colors;
 }
