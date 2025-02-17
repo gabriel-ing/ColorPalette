@@ -45,14 +45,22 @@
         width: 45%;
         flex-grow: 1;
         border-radius: 10px;
-        flex-shrink:1;
+        flex-shrink: 1;
       }
       form {
         line-height: 1.8em;
+        font-weight: 100;
+        font-size: 15px;
       }
       .form-container {
         display: flex;
       }
+      h2{
+        line-height: 0.5em;
+        font-size: 18px;
+        font-weight:600;
+      }
+
     </style>
   </head>
   <body>
@@ -60,13 +68,13 @@
     <div class="form-container">
       <div class="customise-options">
         <h2 class="form-header">Generate palette from an initial colour:</h2>
-        <form
-          id="initial-color-submission"
-          onsubmit="createPaletteFromInitial(event)"
-        >
+        <form id="initial-color-submission">
           <label for="hex-input">Input Initial colour hex:</label>
           <input type="text" id="hex-input" name="hexInput" required /><br />
-          <label for="rotation">Select how hues are generated: [Hue value changes in square brackets]</label><br />
+          <label for="rotation"
+            >Select how hues are generated: [Hue value changes in square
+            brackets]</label
+          ><br />
           <input type="radio" id="default1" name="rotation" value="default1" />
           <label for="default1">Default 1 [-30, 30, 120, 180, 240]</label><br />
           <input type="radio" id="default2" name="rotation" value="default2" />
@@ -91,9 +99,17 @@
       </div>
       <div class="customise-options">
         <h2 class="form-header">Plot a custom palette</h2>
-        <form id="initial-color-submission" onsubmit="plotCustomPalette(event)">
-          <label for="hex-list">Enter hex codes as a comma separated list: </label><br>
-          <input type="text" id="hex-list" name="hexList" required  size="40%"/><br />
+        <form id="initial-color-submission">
+          <label for="hex-list"
+            >Enter hex codes as a comma separated list: </label
+          ><br />
+          <input
+            type="text"
+            id="hex-list"
+            name="hexList"
+            required
+            size="40%"
+          /><br />
           <input type="submit" value="Submit" />
         </form>
       </div>

@@ -2670,48 +2670,9 @@
 
   Transform.prototype;
 
-  function wrap(text, width) {
-    text.each(function () {
-      var text = select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 1.1, // ems
-        x = text.attr("x"),
-        y = text.attr("y"),
-        dy = 0, //parseFloat(text.attr("dy")),
-        tspan = text
-          .text(null)
-          .append("tspan")
-          .attr("x", x)
-          .attr("y", y)
-          .attr("dy", dy + "em");
-
-      console.log();
-      while ((word = words.pop())) {
-        line.push(word);
-        tspan.text(line.join(" "));
-        if (tspan.node().getComputedTextLength() > width) {
-          line.pop();
-          tspan.text(line.join(" "));
-          line = [word];
-          tspan = text
-            .append("tspan")
-            .attr("x", x)
-            .attr("y", y)
-            .attr("dy", ++lineNumber * lineHeight + dy + "em")
-            .text(word);
-        }
-      }
-      const totalHeight = lineNumber * lineHeight * text.attr("font-size"); // Approximate height in pixels
-      text.attr("transform", `translate(0, ${-totalHeight / 2})`);
-    });
-  }
-
   const colorPalette = () => {
     let baseColors;
-    let margin = { top: 20, right: 10, bottom: 0, left: 80 };
+    let margin = { top: 20, right: 10, bottom: 0, left: 120 };
     let nShades = 9;
 
     let padding = 10;
@@ -2720,7 +2681,7 @@
       const height = selection.node().getBoundingClientRect().height;
       selection.attr("viewBox", `0 0 ${width} ${height}`);
 
-      console.log(baseColors);
+      // console.log(baseColors);
       const tooltip = d3.select("#tooltip");
 
       const cols = selection
@@ -2746,7 +2707,7 @@
       const rows = cols
         .selectAll("g")
         .data((column) => {
-          console.log(column);
+          // console.log(column)
           const color = d3.color(column.hex);
           const hsl = d3.hsl(color);
           const lightEnd = hsl.copy();
@@ -2773,22 +2734,22 @@
           //   .range(['white', column.hex, 'black']);
 
           const colors = d3.range(nShades).map((d) => {
-          //   const textColor = d3.hsl(colorScale(d));
-          //   textColor.s = 0;
-          //   textColor.l = 1-textColor.l
+            //   const textColor = d3.hsl(colorScale(d));
+            //   textColor.s = 0;
+            //   textColor.l = 1-textColor.l
             return {
               i: d,
               rgb: colorScale(d),
               hex: d3.color(colorScale(d)).formatHex(),
-              textColor: d3.hsl(colorScale(d)).l>0.5 ?  "#363636": "#e6e6e6",
+              textColor: d3.hsl(colorScale(d)).l > 0.6 ? "#363636" : "#e6e6e6",
             };
           });
-          
+
           colors.unshift({
             i: hsl.l > 0.5 ? 0 : nShades,
             rgb: d3.color(column.hex).formatRgb(),
             hex: column.hex,
-            textColor: d3.hsl(column.hex).l>0.5 ?  "#363636": "#e6e6e6",
+            textColor: d3.hsl(column.hex).l > 0.5 ? "#363636" : "#e6e6e6",
           });
           return colors;
         })
@@ -2839,7 +2800,7 @@
         .attr("y1", yPos(0, 1) - padding / 2)
         .attr("y2", yPos(0, 1) - padding / 2)
         .attr("x1", margin.left)
-        .attr("x2", width - margin.right-padding)
+        .attr("x2", width - margin.right - padding)
         .attr("stroke-width", 1)
         .attr("stroke", "black");
 
@@ -2872,8 +2833,22 @@
         .attr("text-align", "middle")
         .attr("dy", "0.1em")
         .attr("y", (d, i) => yPos(d, i) + rectHeight / 2)
-        .text((d) => d)
-        .call(wrap, 50);
+        .text((d) => d);
+        // .call(wrap, 50);
+      selection
+        .selectAll(".lightness-label")
+        .data([null])
+        .join("text")
+        .attr("class", "lightness-label label")
+        .attr("x", 5)
+        .attr("y", (height - margin.top - rectHeight) / 2 + rectHeight)
+        .attr(
+          "transform",
+          `rotate(-90,${margin.left / 3},${
+          (height - margin.top - rectHeight) / 2 + rectHeight
+        }  )`
+        )
+        .text("Lightness");
     };
 
     my.baseColors = function (_) {
@@ -3084,11 +3059,65 @@
       
   };
 
+  const setDefaultColors = (colors) => {
+    const rotations = [-30, 30, 120, 180, 240];
+    const originalColorHex = "#afdef4";
+    const defaultColors = getHues(originalColorHex, rotations);
+    return defaultColors;
+  };
+
+  const rotationOptions = {
+      default1: [-30, 30, 120, 180, 240],
+      default2: [-60, 60, 150, 180, 210],
+      analogous: [20, 40, 60, 80, 100],
+      divergent: [60, 120, 180, 240, 300],
+    };
+  function getColors(params) {
+    let colors;
+    if (params.get("hexInput") && params.get("rotation")) {
+      const hexInput = params.get("hexInput");
+      if (!color(hexInput)) {
+        alert(
+          `Error - ${hexInput} is not a hex colour, please input a valid colour`
+        );
+        colors = setDefaultColors();
+        return colors;
+      }
+
+      const rotations = rotationOptions[params.get("rotation")];
+      colors = getHues(hexInput, rotations);
+    } else if (params.get("hexList")) {
+      const hexListInput = params.get("hexList");
+
+      let colorList = hexListInput.split(",").map((d) => d.trim());
+      colorList.forEach((color$1) => {
+        // console.log(d3.color(color))
+        if (!color(color$1)) {
+          alert(
+            `Error! ${color$1} is not a valid colour hex code, please enter valid colours.`
+          );
+          colors = setDefaultColors();
+          return colors;
+        }
+      });
+      colors = colorList.map((d) => ({ hex: d }));
+    } else {
+      setDefaultColors();
+    }
+    return colors;
+  }
+
   window.saveChart = saveChart;
   window.createPaletteFromInitial = createPaletteFromInitial;
   window.plotCustomPalette = plotCustomPalette;
 
 
+
+
+  const params = new URLSearchParams(window.location.search);
+  const colors = getColors(params);
+  console.log(colors);
+  // console.log(colors);
   const svg = select("#palette")
     .append("svg")
     .attr("id", "palette-svg")
@@ -3097,12 +3126,7 @@
     .attr("width", "100%")
     .attr("height", "100%");
 
-  const rotations = [-30, 30, 120, 180, 240];
-  const originalColorHex = "#afdef4";
-
-  const colors = getHues(originalColorHex, rotations);
-  const palette = colorPalette()
-    .baseColors(colors);
+  const palette = colorPalette().baseColors(colors);
 
   svg.call(palette);
 

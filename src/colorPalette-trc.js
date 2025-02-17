@@ -2,7 +2,7 @@ import { wrap } from "./wrapText";
 
 export const colorPalette = () => {
   let baseColors;
-  let margin = { top: 20, right: 10, bottom: 0, left: 80 };
+  let margin = { top: 20, right: 10, bottom: 0, left: 120 };
   let nShades = 9;
 
   let padding = 10;
@@ -11,7 +11,7 @@ export const colorPalette = () => {
     const height = selection.node().getBoundingClientRect().height;
     selection.attr("viewBox", `0 0 ${width} ${height}`);
 
-    console.log(baseColors);
+    // console.log(baseColors);
     const tooltip = d3.select("#tooltip");
 
     const cols = selection
@@ -37,7 +37,7 @@ export const colorPalette = () => {
     const rows = cols
       .selectAll("g")
       .data((column) => {
-        console.log(column)
+        // console.log(column)
         const color = d3.color(column.hex);
         const hsl = d3.hsl(color);
         const lightEnd = hsl.copy();
@@ -64,22 +64,22 @@ export const colorPalette = () => {
         //   .range(['white', column.hex, 'black']);
 
         const colors = d3.range(nShades).map((d) => {
-        //   const textColor = d3.hsl(colorScale(d));
-        //   textColor.s = 0;
-        //   textColor.l = 1-textColor.l
+          //   const textColor = d3.hsl(colorScale(d));
+          //   textColor.s = 0;
+          //   textColor.l = 1-textColor.l
           return {
             i: d,
             rgb: colorScale(d),
             hex: d3.color(colorScale(d)).formatHex(),
-            textColor: d3.hsl(colorScale(d)).l>0.5 ?  "#363636": "#e6e6e6",
+            textColor: d3.hsl(colorScale(d)).l > 0.6 ? "#363636" : "#e6e6e6",
           };
         });
-        
+
         colors.unshift({
           i: hsl.l > 0.5 ? 0 : nShades,
           rgb: d3.color(column.hex).formatRgb(),
           hex: column.hex,
-          textColor: d3.hsl(column.hex).l>0.5 ?  "#363636": "#e6e6e6",
+          textColor: d3.hsl(column.hex).l > 0.5 ? "#363636" : "#e6e6e6",
         });
         return colors;
       })
@@ -99,7 +99,7 @@ export const colorPalette = () => {
       .attr("y", 0)
       .attr("fill", (d) => d.rgb)
       .on("click", (event, d) => {
-        console.log(d)
+        console.log(d);
         navigator.clipboard.writeText(d.hex);
 
         tooltip.html(`${d.hex} <br>Copied to clipboard!`);
@@ -130,7 +130,7 @@ export const colorPalette = () => {
       .attr("y1", yPos(0, 1) - padding / 2)
       .attr("y2", yPos(0, 1) - padding / 2)
       .attr("x1", margin.left)
-      .attr("x2", width - margin.right-padding)
+      .attr("x2", width - margin.right - padding)
       .attr("stroke-width", 1)
       .attr("stroke", "black");
 
@@ -164,7 +164,21 @@ export const colorPalette = () => {
       .attr("dy", "0.1em")
       .attr("y", (d, i) => yPos(d, i) + rectHeight / 2)
       .text((d) => d)
-      .call(wrap, 50);
+      // .call(wrap, 50);
+    selection
+      .selectAll(".lightness-label")
+      .data([null])
+      .join("text")
+      .attr("class", "lightness-label label")
+      .attr("x", 5)
+      .attr("y", (height - margin.top - rectHeight) / 2 + rectHeight)
+      .attr(
+        "transform",
+        `rotate(-90,${margin.left / 3},${
+          (height - margin.top - rectHeight) / 2 + rectHeight
+        }  )`
+      )
+      .text("Lightness");
   };
 
   my.baseColors = function (_) {
