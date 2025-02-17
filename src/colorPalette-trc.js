@@ -7,6 +7,7 @@ export const colorPalette = () => {
 
   let padding = 10;
   const my = (selection) => {
+    // console.log(selection);
     const width = selection.node().getBoundingClientRect().width;
     const height = selection.node().getBoundingClientRect().height;
     selection.attr("viewBox", `0 0 ${width} ${height}`);
