@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>HTML Starter</title>
+    <title>Colour Palette</title>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -22,27 +22,88 @@
         align-items: center; */
         text-align: center;
       }
-      .flex{
-        display:flex;
+      .flex {
+        display: flex;
       }
       body {
         font-family: arial;
       }
-      #chart {
+      #palette {
         width: 1000px;
         height: 700px;
-        flex-grow:1;
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+      .hex-label {
+        font-size: 12px;
+      }
+      .customise-options {
+        background-color: rgb(232, 232, 232);
+        border: 1px solid rgb(154, 154, 154);
+        padding: 10px;
+        margin: 10px;
+        width: 45%;
+        flex-grow: 1;
+        border-radius: 10px;
         flex-shrink:1;
       }
-      .hex-label{
-        font-size: 12px;
+      form {
+        line-height: 1.8em;
+      }
+      .form-container {
+        display: flex;
       }
     </style>
   </head>
   <body>
-    <div class="flex">
-      <div id="chart"></div>
+    <h1>Colour Palette Generator</h1>
+    <div class="form-container">
+      <div class="customise-options">
+        <h2 class="form-header">Generate palette from an initial colour:</h2>
+        <form
+          id="initial-color-submission"
+          onsubmit="createPaletteFromInitial(event)"
+        >
+          <label for="hex-input">Input Initial colour hex:</label>
+          <input type="text" id="hex-input" name="hexInput" required /><br />
+          <label for="rotation">Select how hues are generated: [Hue value changes in square brackets]</label><br />
+          <input type="radio" id="default1" name="rotation" value="default1" />
+          <label for="default1">Default 1 [-30, 30, 120, 180, 240]</label><br />
+          <input type="radio" id="default2" name="rotation" value="default2" />
+          <label for="default2">Default 2 [-60, 60, 150, 180, 210]</label><br />
+          <input
+            type="radio"
+            id="analogous"
+            name="rotation"
+            value="analogous"
+          />
+          <label for="analogous">Analogous [20, 40, 60, 80, 100]</label><br />
+          <input
+            type="radio"
+            id="divergent"
+            name="rotation"
+            value="divergent"
+          />
+          <label for="divergent">Divergent [60, 120, 180, 240, 300]</label
+          ><br />
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
+      <div class="customise-options">
+        <h2 class="form-header">Plot a custom palette</h2>
+        <form id="initial-color-submission" onsubmit="plotCustomPalette(event)">
+          <label for="hex-list">Enter hex codes as a comma separated list: </label><br>
+          <input type="text" id="hex-list" name="hexList" required  size="40%"/><br />
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
     </div>
+    <!-- <div class="customise-options"></div> -->
+
+    <div class="flex">
+      <div id="palette"></div>
+    </div>
+    <button onclick="saveChart('palette-svg')">Save Image</button>
     <div id="tooltip"></div>
     <script src="bundle.js"></script>
   </body>

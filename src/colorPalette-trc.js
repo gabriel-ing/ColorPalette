@@ -3,7 +3,7 @@ import { wrap } from "./wrapText";
 export const colorPalette = () => {
   let baseColors;
   let margin = { top: 20, right: 10, bottom: 0, left: 80 };
-  let nShades = 8;
+  let nShades = 9;
 
   let padding = 10;
   const my = (selection) => {
@@ -18,6 +18,7 @@ export const colorPalette = () => {
       .selectAll(".columns")
       .data(baseColors)
       .join("g")
+      .attr("class", "columns")
       .attr(
         "transform",
         (d, i) =>
@@ -30,26 +31,27 @@ export const colorPalette = () => {
     const yPos = (d, i) =>
       (i * (height - margin.top - margin.bottom)) / (nShades + 1) + margin.top;
 
-    const columnWidth =
+    let columnWidth =
       (width - margin.left - margin.right) / baseColors.length - padding;
-    const rectHeight = height / (nShades + 1) - padding;
+    let rectHeight = height / (nShades + 1) - padding;
     const rows = cols
       .selectAll("g")
       .data((column) => {
+        console.log(column)
         const color = d3.color(column.hex);
         const hsl = d3.hsl(color);
         const lightEnd = hsl.copy();
         lightEnd.l = 0.9;
-        lightEnd.s = lightEnd.s * 0.7;
+        // lightEnd.s = lightEnd.s * 0.7;
         const darkEnd = hsl.copy();
-        darkEnd.l = 0.2;
-        darkEnd.s = darkEnd.s * 1.1;
-        console.log(darkEnd.formatHex());
+        darkEnd.l = 0.1;
+        // darkEnd.s = darkEnd.s * 1.1;
+        // console.log(darkEnd.formatHex());
         const centerPoint = hsl.copy();
         centerPoint.l = 0.5;
         const colorScale = d3
           .scaleLinear()
-          .domain([0, nShades / 2, nShades - 2])
+          .domain([0, nShades / 2, nShades - 1])
           .range([
             lightEnd.formatHex(),
             centerPoint.formatHex(),
@@ -62,26 +64,29 @@ export const colorPalette = () => {
         //   .range(['white', column.hex, 'black']);
 
         const colors = d3.range(nShades).map((d) => {
-          const textColor = d3.hsl(colorScale(d));
-          textColor.s = 0;
-          textColor.l = 1-textColor.l
+        //   const textColor = d3.hsl(colorScale(d));
+        //   textColor.s = 0;
+        //   textColor.l = 1-textColor.l
           return {
             i: d,
             rgb: colorScale(d),
             hex: d3.color(colorScale(d)).formatHex(),
-            textColor: textColor.formatHex(),
+            textColor: d3.hsl(colorScale(d)).l>0.5 ?  "#363636": "#e6e6e6",
           };
         });
+        
         colors.unshift({
           i: hsl.l > 0.5 ? 0 : nShades,
           rgb: d3.color(column.hex).formatRgb(),
           hex: column.hex,
+          textColor: d3.hsl(column.hex).l>0.5 ?  "#363636": "#e6e6e6",
         });
         return colors;
       })
       .join("g")
       .attr("class", "column-row")
       .attr("transform", (d, i) => `translate(0, ${yPos(d, i)})`);
+
     rows
       .selectAll("rect")
       .data((node) => [node])
@@ -94,13 +99,14 @@ export const colorPalette = () => {
       .attr("y", 0)
       .attr("fill", (d) => d.rgb)
       .on("click", (event, d) => {
+        console.log(d)
         navigator.clipboard.writeText(d.hex);
 
         tooltip.html(`${d.hex} <br>Copied to clipboard!`);
         tooltip
           .style("opacity", 1)
           .style("border", `1px solid black`)
-          .style("color", d.i < nShades / 2 ? "black" : "white")
+          .style("color", d.textColor)
           .style("background-color", d.hex)
           .style("left", `${event.pageX}px`)
           .style("top", `${event.pageY}px`);
@@ -124,7 +130,7 @@ export const colorPalette = () => {
       .attr("y1", yPos(0, 1) - padding / 2)
       .attr("y2", yPos(0, 1) - padding / 2)
       .attr("x1", margin.left)
-      .attr("x2", width - margin.right)
+      .attr("x2", width - margin.right-padding)
       .attr("stroke-width", 1)
       .attr("stroke", "black");
 
@@ -141,7 +147,7 @@ export const colorPalette = () => {
     const labelScale = d3
       .scaleLinear()
       .domain([0, nShades - 1])
-      .range([20, 90]);
+      .range([90, 10]);
     const rowLabels = d3
       .range(nShades)
       .map((d) => `${labelScale(d).toFixed(0)}%`);
@@ -151,6 +157,7 @@ export const colorPalette = () => {
       .data(rowLabels)
       .join("text")
       .attr("x", margin.left - padding)
+      .attr("class", "row-label label")
       .attr("text-anchor", "end")
       .attr("dominant-baseline", "middle")
       .attr("text-align", "middle")

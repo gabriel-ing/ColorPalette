@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Colour Palette</title>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+      .color-square {
+        cursor: pointer;
+      }
+      #tooltip {
+        position: absolute;
+        padding: 10px;
+        border: 1px solid black;
+        border-radius: 10px;
+        color: white;
+        opacity: 0;
+        font-size: 18px;
+        font-weight: 400;
+        /* justify-content: center;
+        align-items: center; */
+        text-align: center;
+      }
+      .flex{
+        display:flex;
+      }
+      body {
+        font-family: arial;
+      }
+      #palette {
+        width: 1000px;
+        height: 700px;
+        flex-grow:1;
+        flex-shrink:1;
+      }
+      .hex-label{
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex">
+      <div id="palette"></div>
+    </div>
+    <button onclick="saveChart('palette-svg')">Save Image</button>
+    <div id="tooltip"></div>
+    <script src="bundle.js"></script>
+  </body>
+</html>

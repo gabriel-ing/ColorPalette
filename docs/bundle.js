@@ -2712,7 +2712,7 @@
   const colorPalette = () => {
     let baseColors;
     let margin = { top: 20, right: 10, bottom: 0, left: 80 };
-    let nShades = 8;
+    let nShades = 9;
 
     let padding = 10;
     const my = (selection) => {
@@ -2727,6 +2727,7 @@
         .selectAll(".columns")
         .data(baseColors)
         .join("g")
+        .attr("class", "columns")
         .attr(
           "transform",
           (d, i) =>
@@ -2739,26 +2740,27 @@
       const yPos = (d, i) =>
         (i * (height - margin.top - margin.bottom)) / (nShades + 1) + margin.top;
 
-      const columnWidth =
+      let columnWidth =
         (width - margin.left - margin.right) / baseColors.length - padding;
-      const rectHeight = height / (nShades + 1) - padding;
+      let rectHeight = height / (nShades + 1) - padding;
       const rows = cols
         .selectAll("g")
         .data((column) => {
+          console.log(column);
           const color = d3.color(column.hex);
           const hsl = d3.hsl(color);
           const lightEnd = hsl.copy();
           lightEnd.l = 0.9;
-          lightEnd.s = lightEnd.s * 0.7;
+          // lightEnd.s = lightEnd.s * 0.7;
           const darkEnd = hsl.copy();
-          darkEnd.l = 0.2;
-          darkEnd.s = darkEnd.s * 1.1;
-          console.log(darkEnd.formatHex());
+          darkEnd.l = 0.1;
+          // darkEnd.s = darkEnd.s * 1.1;
+          // console.log(darkEnd.formatHex());
           const centerPoint = hsl.copy();
           centerPoint.l = 0.5;
           const colorScale = d3
             .scaleLinear()
-            .domain([0, nShades / 2, nShades - 2])
+            .domain([0, nShades / 2, nShades - 1])
             .range([
               lightEnd.formatHex(),
               centerPoint.formatHex(),
@@ -2771,26 +2773,29 @@
           //   .range(['white', column.hex, 'black']);
 
           const colors = d3.range(nShades).map((d) => {
-            const textColor = d3.hsl(colorScale(d));
-            textColor.s = 0;
-            textColor.l = 1-textColor.l;
+          //   const textColor = d3.hsl(colorScale(d));
+          //   textColor.s = 0;
+          //   textColor.l = 1-textColor.l
             return {
               i: d,
               rgb: colorScale(d),
               hex: d3.color(colorScale(d)).formatHex(),
-              textColor: textColor.formatHex(),
+              textColor: d3.hsl(colorScale(d)).l>0.5 ?  "#363636": "#e6e6e6",
             };
           });
+          
           colors.unshift({
             i: hsl.l > 0.5 ? 0 : nShades,
             rgb: d3.color(column.hex).formatRgb(),
             hex: column.hex,
+            textColor: d3.hsl(column.hex).l>0.5 ?  "#363636": "#e6e6e6",
           });
           return colors;
         })
         .join("g")
         .attr("class", "column-row")
         .attr("transform", (d, i) => `translate(0, ${yPos(d, i)})`);
+
       rows
         .selectAll("rect")
         .data((node) => [node])
@@ -2803,13 +2808,14 @@
         .attr("y", 0)
         .attr("fill", (d) => d.rgb)
         .on("click", (event, d) => {
+          console.log(d);
           navigator.clipboard.writeText(d.hex);
 
           tooltip.html(`${d.hex} <br>Copied to clipboard!`);
           tooltip
             .style("opacity", 1)
             .style("border", `1px solid black`)
-            .style("color", d.i < nShades / 2 ? "black" : "white")
+            .style("color", d.textColor)
             .style("background-color", d.hex)
             .style("left", `${event.pageX}px`)
             .style("top", `${event.pageY}px`);
@@ -2833,7 +2839,7 @@
         .attr("y1", yPos(0, 1) - padding / 2)
         .attr("y2", yPos(0, 1) - padding / 2)
         .attr("x1", margin.left)
-        .attr("x2", width - margin.right)
+        .attr("x2", width - margin.right-padding)
         .attr("stroke-width", 1)
         .attr("stroke", "black");
 
@@ -2850,7 +2856,7 @@
       const labelScale = d3
         .scaleLinear()
         .domain([0, nShades - 1])
-        .range([20, 90]);
+        .range([90, 10]);
       const rowLabels = d3
         .range(nShades)
         .map((d) => `${labelScale(d).toFixed(0)}%`);
@@ -2860,6 +2866,7 @@
         .data(rowLabels)
         .join("text")
         .attr("x", margin.left - padding)
+        .attr("class", "row-label label")
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("text-align", "middle")
@@ -2911,15 +2918,186 @@
     return baseColors;
   };
 
-  const svg = select("#chart")
+  function serialize(svg) {
+    const xmlns = "http://www.w3.org/2000/xmlns/";
+    const xlinkns = "http://www.w3.org/1999/xlink";
+    const svgns = "http://www.w3.org/2000/svg";
+    svg = svg.cloneNode(true);
+    const fragment = window.location.href + "#";
+    const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+    while (walker.nextNode()) {
+      for (const attr of walker.currentNode.attributes) {
+        if (attr.value.includes(fragment)) {
+          attr.value = attr.value.replace(fragment, "#");
+        }
+      }
+    }
+    svg.setAttributeNS(xmlns, "xmlns", svgns);
+    svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+    const serializer = new window.XMLSerializer();
+    const string = serializer.serializeToString(svg);
+    return new Blob([string], {
+      type: "image/svg+xml",
+    });
+  }
+
+  function getRequiredStyles(elem) {
+    if (!elem) return []; // Element does not exist, empty list.
+    const requiredStyles = [
+      "font-family",
+      "font-weight",
+      "font-size",
+      "transform-origin",
+      "dy",
+      "text-align",
+      "dominant-baseline",
+      "text-anchor",
+    ]; // If the text styling is wrong, its possible a required styling is missing from here! Add it in.
+    // console.log(elem);
+    var win = document.defaultView || window,
+      style,
+      styleNode = [];
+    if (win.getComputedStyle) {
+      /* Modern browsers */
+      style = win.getComputedStyle(elem, "");
+      //console.log(style);
+      for (var i = 0; i < requiredStyles.length; i++) {
+        //console.log(requiredStyles[i]);
+        styleNode.push(
+          requiredStyles[i] + ":" + style.getPropertyValue(requiredStyles[i])
+        );
+        //               ^name ^           ^ value ^
+      }
+    } else if (elem.currentStyle) {
+      /* IE */
+      style = elem.currentStyle;
+      console.log(style);
+      for (var name in style) {
+        styleNode.push(name + ":" + style[name]);
+      }
+    } else {
+      /* Ancient browser..*/
+      style = elem.style;
+      console.log(style);
+      for (var i = 0; i < style.length; i++) {
+        styleNode.push(style[i] + ":" + style[style[i]]);
+      }
+    }
+    return styleNode;
+  }
+
+  const addStyles = (chart) => {
+    /* Function to add the styles from the CSS onto the computed SVG before saving it.
+  // Currently only implemented to fix the font-size and font-family attributes for any text class. 
+  // If these values are set within the d3 (i.e. directly onto the SVG), this is unnecessary
+  // But it ensures that text styling using CSS is retained. */
+
+    const textElements = chart.getElementsByTagName("text");
+    // console.log(textElements);
+
+    const mainStyles = getRequiredStyles(chart);
+    // console.log(mainStyles);
+    chart.style.cssText = mainStyles.join(";");
+    Array.from(textElements).forEach(function (element) {
+      // console.log(element);
+      // console.log(element)
+      const styles = getRequiredStyles(element);
+      // console.log(styles)
+      element.style.cssText = styles.join(";");
+    });
+    return chart;
+  };
+
+  const saveChart = (chartID) => {
+    const chart = document.getElementById(chartID);
+    // console.log(chart);
+    //   console.log(getStyleById(chartID));
+    if (chart === null) {
+      alert(`error! ${chartID} cannot be found`);
+      return -1;
+    }
+
+    const chartWithStyles = addStyles(chart);
+    const chartBlob = serialize(chartWithStyles);
+    const fileURL = URL.createObjectURL(chartBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = fileURL;
+    downloadLink.download = `${chartID}.svg`;
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+  };
+
+  const createPaletteFromInitial = (event) => {
+  //   event.preventDefault();
+
+    const originalColorHex = event.target.hexInput.value;
+    if (!color(originalColorHex)) {
+      alert(
+        `Error - ${originalColorHex} is not a hex colour, please input a valid colour`
+      );
+      return -1;
+    }
+
+
+
+    const rotationOptions = {
+      default1: [-30, 30, 120, 180, 240],
+      default2: [-60, 60, 150, 180, 210],
+      analogous:[20, 40, 60, 80, 100],
+      divergent: [60, 120, 180, 240, 300],
+    };
+
+    const svg = select("#palette-svg");
+    //   svg.append("rect").attr("width", 100).height("height", 100)
+    //   console.log(svg)
+
+    console.log(event.target.rotation.value);
+    const rotations = rotationOptions[event.target.rotation.value];
+    console.log(rotations);
+    const colors = getHues(originalColorHex, rotations);
+    const palette = colorPalette().baseColors(colors);
+
+    svg.call(palette);
+  };
+
+  const plotCustomPalette = (event)=>{
+      // event.preventDefault();
+      
+      const hexListInput = event.target.hexList.value;
+
+      const svg = select("#palette-svg");
+      
+      let colors = hexListInput.split(",").map(d=> d.trim());
+      colors.forEach(color$1=>{
+          
+          // console.log(d3.color(color))
+          if (!color(color$1)){
+              alert(`Error! ${color$1} is not a valid colour hex code, please enter valid colours.`);
+              return -1
+          }
+      });
+      colors = colors.map(d=> ({hex: d}));
+      const palette = colorPalette().baseColors(colors);
+    
+      svg.call(palette);
+      
+  };
+
+  window.saveChart = saveChart;
+  window.createPaletteFromInitial = createPaletteFromInitial;
+  window.plotCustomPalette = plotCustomPalette;
+
+
+  const svg = select("#palette")
     .append("svg")
-    .attr("id", "#chart-svg")
+    .attr("id", "palette-svg")
     .attr("preserveAspectRatio", "xMinYMin meet")
     // .attr("viewBox", "0 0 600 400")
     .attr("width", "100%")
     .attr("height", "100%");
 
-  const rotations = [330, 30, 120, 180, 240];
+  const rotations = [-30, 30, 120, 180, 240];
   const originalColorHex = "#afdef4";
 
   const colors = getHues(originalColorHex, rotations);
