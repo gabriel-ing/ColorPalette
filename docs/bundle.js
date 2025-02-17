@@ -4205,12 +4205,7 @@
   }
   });
 
-  // import { blinder } from "color-blinder";
-  //Set all the save button functions
-  window.saveChart = saveChart;
-  window.saveJson = saveJson;
-
-  window.colorBlindCheck = (cbType) => {
+  const plotColorBlind = (cbType) => {
     // const cbDiv = d3.select("body").append("div").attr("class", "palette");
     let getCBColor;
     if (cbType === "deuteranomaly") {
@@ -4222,7 +4217,7 @@
     } else if (cbType === "deuteranopia") {
       getCBColor = (hex) => colorBlind.deuteranopia(hex);
     }
-    const cbDiv = select("#cb-chart");
+    const cbDiv = d3.select("#cb-chart");
 
     let cbSvg;
     cbSvg = cbDiv.select("svg");
@@ -4242,17 +4237,20 @@
     let params1 = new URLSearchParams(window.location.search);
     const newColors = getColors(params1);
     const cbColors = newColors.map((d) => {
-      // const rgb = d3.rgb(d.hex);
-      // const cb = simulate(rgb, cbType);
-      // const newColor = d3.color(`rgb(${cb.r}, ${cb.g}, ${cb.b})`).formatHex();
-      // d.hex = blinder.protanomaly(d.hex);
       d.hex = getCBColor(d.hex);
       return d;
     });
-    console.log(colors, cbColors);
+    
     const cbPalette = colorPalette().baseColors(cbColors);
     cbSvg.call(cbPalette);
   };
+
+  // import { blinder } from "color-blinder";
+  //Set all the save button functions
+  window.saveChart = saveChart;
+  window.saveJson = saveJson;
+
+  window.colorBlindCheck = plotColorBlind;
 
   // Get current parameters
   const params = new URLSearchParams(window.location.search);
