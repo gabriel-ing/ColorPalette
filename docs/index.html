@@ -98,6 +98,11 @@
         flex-grow: 1;
         height: 500px;
       }
+      h4{
+        line-height: 1em;
+        margin-top: 0px;
+        margin-bottom:0px;
+      }
     </style>
   </head>
   <body>
@@ -192,7 +197,19 @@
           <input type="radio" id="custom" name="rotation" value="custom" />
           <label for="custom">Custom</label>
           <input type="text" id="custom-rotation" name="customRotation" />
-          <br />
+          <br /><br />
+          <h4>Want fewer shades?</h4>
+          <label for="custom-lightness"
+            >Customise Lightness: Enter a comma separated list of
+            percentages </label
+          >
+         <br>
+          <input
+            type="text"
+            id="custom-lightness"
+            name="customLightness"
+            value="95, 90, 80, 70, 60, 50, 40, 30, 20, 10"
+          /><br /><br />
           <input type="submit" value="Submit" />
         </form>
       </div>
@@ -208,7 +225,20 @@
             name="hexList"
             required
             size="40%"
-          /><br />
+          /><br /><br>
+          <h4>Want fewer shades?</h4>
+          <label for="custom-lightness"
+            >Customise Lightness: Enter a comma separated list of
+            percentages </label
+          >
+         <br>
+          <input
+            type="text"
+            id="custom-lightness1"
+            name="customLightness"
+            value="95, 90, 80, 70, 60, 50, 40, 30, 20, 10"
+          /><br /><br />
+          
           <input type="submit" value="Submit" />
         </form>
       </div>

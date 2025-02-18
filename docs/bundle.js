@@ -2673,11 +2673,13 @@
   const colorPalette = () => {
     let baseColors;
     let margin = { top: 20, right: 10, bottom: 0, left: 120 };
-    let nShades = 9;
-
+    let shades = [95,90,80,70,60,50,40,30,20,10];
+    
     let padding = 10;
     const my = (selection) => {
       // console.log(selection);
+      let nShades = shades.length;
+
       const width = selection.node().getBoundingClientRect().width;
       const height = selection.node().getBoundingClientRect().height;
       selection.attr("viewBox", `0 0 ${width} ${height}`);
@@ -2708,43 +2710,24 @@
       const rows = cols
         .selectAll("g")
         .data((column) => {
-          // console.log(column)
+          console.log(column);
           const color = d3.color(column.hex);
           const hsl = d3.hsl(color);
-          const lightEnd = hsl.copy();
-          lightEnd.l = 0.9;
-          // lightEnd.s = lightEnd.s * 0.7;
-          const darkEnd = hsl.copy();
-          darkEnd.l = 0.1;
-          // darkEnd.s = darkEnd.s * 1.1;
-          // console.log(darkEnd.formatHex());
-          const centerPoint = hsl.copy();
-          centerPoint.l = 0.5;
-          const colorScale = d3
-            .scaleLinear()
-            .domain([0, nShades / 2, nShades - 1])
-            .range([
-              lightEnd.formatHex(),
-              centerPoint.formatHex(),
-              darkEnd.formatHex(),
-            ]);
 
-          // const colorScale = d3
-          //   .scaleLinear()
-          //   .domain([-1, nShades / 2, nShades + 1])
-          //   .range(['white', column.hex, 'black']);
 
-          const colors = d3.range(nShades).map((d) => {
+          const colors = shades.map((d) => {
             //   const textColor = d3.hsl(colorScale(d));
             //   textColor.s = 0;
             //   textColor.l = 1-textColor.l
+            const c = hsl.copy();
+            c.l = d/100;
             return {
               // i: d,
               baseColor: column.hex,
-              rgb: colorScale(d),
-              lightness: `${(d + 1) * 10}%`,
-              hex: d3.color(colorScale(d)).formatHex(),
-              textColor: d3.hsl(colorScale(d)).l > 0.6 ? "#363636" : "#e6e6e6",
+              rgb: c.formatRgb(),
+              lightness: `${d}%`,
+              hex: c.formatHex(),
+              textColor: d3.hsl(c).l > 0.6 ? "#363636" : "#e6e6e6",
             };
           });
 
@@ -2756,6 +2739,7 @@
             lightness: "n/a",
             textColor: d3.hsl(column.hex).l > 0.5 ? "#363636" : "#e6e6e6",
           });
+          console.log(colors);
           return colors;
         })
         .join("g")
@@ -2819,13 +2803,12 @@
         .attr("y", margin.top - 5)
         .text((d) => d.colorName);
 
-      const labelScale = d3
-        .scaleLinear()
-        .domain([0, nShades - 1])
-        .range([90, 10]);
-      const rowLabels = d3
-        .range(nShades)
-        .map((d) => `${labelScale(d).toFixed(0)}%`);
+      // const labelScale = d3
+      //   .scaleLinear()
+      //   .domain([0, nShades - 1])
+      //   .range([90, 10]);
+      const rowLabels = shades
+        .map((d) => `${d.toFixed(0)}%`);
       rowLabels.unshift("Base Colours");
       selection
         .selectAll(".row-label")
@@ -2865,8 +2848,8 @@
     my.padding = function (_) {
       return arguments.length ? ((padding = _), my) : padding;
     };
-    my.nShades = function (_) {
-      return arguments.length ? ((nShades = _), my) : nShades;
+    my.shades = function (_) {
+      return arguments.length ? ((shades = _), my) : shades;
     };
     return my;
   };
@@ -4260,12 +4243,30 @@
   params.get("rotation")
     ? (document.getElementById(params.get("rotation")).checked = true)
     : console.log(params.get("rotation"));
+
   document.getElementById("hex-list").value = params.get("hexList");
+
   params.get("rotation") === "custom"
     ? (document.getElementById("custom-rotation").value =
         params.get("customRotation"))
     : null;
+  // console.log(params.get("customLightness"))
 
+  let lightness;
+  let customLightnessId = "custom-lightness";
+  if (params.get("hexList")){
+    customLightnessId = "custom-lightness1";
+  }
+  if (params.get("customLightness")) {
+    document.getElementById(customLightnessId).value =
+      params.get("customLightness");
+    lightness = params
+      .get("customLightness")
+      .split(",")
+      .map((d) => Number(d.trim()));
+  } else {
+    lightness = [95, 90, 80, 70, 60, 50, 40, 30, 20, 10];
+  }
   // Create the list of colours
   const colors = getColors(params);
 
@@ -4278,7 +4279,7 @@
     .attr("height", "100%");
 
   // Create the image with the palette object
-  const palette = colorPalette().baseColors(colors);
+  const palette = colorPalette().baseColors(colors).shades(lightness);
   svg.call(palette);
 
 })();
