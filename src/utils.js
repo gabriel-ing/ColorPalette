@@ -12,24 +12,26 @@ export const colorPickerFormListener = (event) => {
 
 export function setInitialState(params) {
   const hex = params.get("hexInput");
-  const hue = d3.hsl(hex);
-  const [h, s, l] = [hue.h, hue.s, hue.l];
-  console.log(h, s, l);
-  document.getElementById("color-picker-palette").style.backgroundColor = hex;
-  document.getElementById("hue-slider").value = h;
-  const outputH = document.getElementById("hue-slider").nextElementSibling;
-  outputH.value = h.toFixed(0);
+  if (hex) {
+    const hue = d3.hsl(hex);
+    const [h, s, l] = [hue.h, hue.s, hue.l];
+    console.log(h, s, l);
+    document.getElementById("color-picker-palette").style.backgroundColor = hex;
+    document.getElementById("hue-slider").value = h;
+    const outputH = document.getElementById("hue-slider").nextElementSibling;
+    outputH.value = h.toFixed(0);
 
-  document.getElementById("saturation-slider").value = s;
-  const outputS =
-    document.getElementById("saturation-slider").nextElementSibling;
-  outputS.value = s.toFixed(2);
+    document.getElementById("saturation-slider").value = s;
+    const outputS =
+      document.getElementById("saturation-slider").nextElementSibling;
+    outputS.value = s.toFixed(2);
 
-  document.getElementById("lightness-slider").value = l;
-  const outputL =
-    document.getElementById("lightness-slider").nextElementSibling;
-  outputL.value = l.toFixed(2);
-  document.getElementById("picker-hex-box").value = hex;
+    document.getElementById("lightness-slider").value = l;
+    const outputL =
+      document.getElementById("lightness-slider").nextElementSibling;
+    outputL.value = l.toFixed(2);
+    document.getElementById("picker-hex-box").value = hex;
+  }
 
   document.getElementById("hex-input").value = hex;
   params.get("rotation")

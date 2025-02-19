@@ -25,10 +25,9 @@
         align-items: center; */
         text-align: center;
       }
-      rect:active{
+      rect:active {
         stroke-width: 3;
         stroke: black;
-
       }
       .flex {
         display: flex;
@@ -119,7 +118,7 @@
         border-radius: 10px;
         border: 1px solid black;
         padding: 10px;
-        display:flex;
+        display: flex;
         flex-direction: column;
       }
       #color-picker-palette {
@@ -130,108 +129,110 @@
         background-color: #7de888;
         border-radius: 10px;
         flex-grow: 3;
-        flex-shrink:1;
+        flex-shrink: 1;
       }
-      .copy-to-clipboard{
+      .copy-to-clipboard {
         cursor: pointer;
-        
       }
-      
-      .copy-to-clipboard:active{
-        transform: scale(1.5)
-        
+
+      .copy-to-clipboard:active {
+        transform: scale(1.5);
       }
-      .intro-picker-container{
-        display:flex;
-        padding:10px;
-      }
-      .intro{
+      .intro-picker-container {
+        display: flex;
         padding: 10px;
       }
-      
+      .intro {
+        padding: 10px;
+      }
     </style>
   </head>
   <body>
     <h1>Colour Palette Generator</h1>
     <div class="intro-picker-container">
-    <div class="intro">    <p>
-      This is a tool to generate a neatly displayed colour palette. Colour
-      palettes can be created from a single initial colour (hex code) or
-      existing colour palettes can be entered as a list of hex values.
-    </p>
-    <p>
-      Colour palette generation is performed by altering the hue value of the
-      <a
-        href="https://www.nixsensor.com/what-is-hsl-color/?srsltid=AfmBOopnKqUtj5_dmxeIfpSQvLAvos1fAaCkSQ7uMngOYGu-DvyzLJV8"
-        >HSL colour wheel</a
-      >. The hue is altered by set values (I like to think of them as
-      rotations). By using evenly spread values, nice colour palettes can be
-      generated. I have included some default options which tend to look nice,
-      but feel free to test your own custom rotations (as a comma separated
-      list).
-    </p>
-    <p>
-      Once the hues are added, the lightness of the colour is altered from 10%
-      to 90%, to create a nice range of dark and light colours. I probably would
-      avoid using all the shades of each colour, but its nice to have a range of
-      shades for different use cases.
-    </p>
-    <p>
-      Be aware, the saturation value is constant throughout the colour palette,
-      which means over or under saturated initial colours may create poor colour
-      palettes.
-    </p>
-    <p>
-      The url created from generating the colour has all the parameters to
-      create the palette, so feel free to save or share a link if you like a
-      palette. You can also save the palette as an image or as a JSON object
-      (buttons at bottom), perfect for future use.
-    </p>
-  </div>
+      <div class="intro">
+        <p>
+          This is a tool to generate a neatly displayed colour palette. Colour
+          palettes can be created from a single initial colour (hex code) or
+          existing colour palettes can be entered as a list of hex values.
+        </p>
+        <p>
+          Colour palette generation is performed by altering the hue value of
+          the
+          <a
+            href="https://www.nixsensor.com/what-is-hsl-color/?srsltid=AfmBOopnKqUtj5_dmxeIfpSQvLAvos1fAaCkSQ7uMngOYGu-DvyzLJV8"
+            >HSL colour wheel</a
+          >. The hue is altered by set values (I like to think of them as
+          rotations). By using evenly spread values, nice colour palettes can be
+          generated. I have included some default options which tend to look
+          nice, but feel free to test your own custom rotations (as a comma
+          separated list).
+        </p>
+        <p>
+          Once the hues are added, the lightness of the colour is altered from
+          10% to 90%, to create a nice range of dark and light colours. I
+          probably would avoid using all the shades of each colour, but its nice
+          to have a range of shades for different use cases.
+        </p>
+        <p>
+          Be aware, the saturation value is constant throughout the colour
+          palette, which means over or under saturated initial colours may
+          create poor colour palettes.
+        </p>
+        <p>
+          The url created from generating the colour has all the parameters to
+          create the palette, so feel free to save or share a link if you like a
+          palette. You can also save the palette as an image or as a JSON object
+          (buttons at bottom), perfect for future use.
+        </p>
+      </div>
 
-    <div id="color-picker">
-      <h2>Colour Picker</h2>
-      <div id="color-picker-palette"></div>
-      <form id="color-picker-form">
-        <label for="hue-slider">Hue:</label>
-        <input
-          type="range"
-          id="hue-slider"
-          min="0"
-          value="24"
-          max="360"
-          oninput="this.nextElementSibling.value = this.value"
-        />
-        <output>126</output><br />
-        <label for="hue-slider">Saturation:</label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          id="saturation-slider"
-          step="0.01"
-          value="0.7"
-          oninput="this.nextElementSibling.value = this.value"
-        />
-        <output>0.7</output><br /><label for="hue-slider">Lightness:</label
-        ><input
-          type="range"
-          min="0"
-          max="1"
-          id="lightness-slider"
-          step="0.01"
-          value="0.7"
-          oninput="this.nextElementSibling.value = this.value"
-        />
-        <output>0.7</output>
-        <br /><label for="picker-hex-box">Hex Code:</label>
-        <input type="text" id="picker-hex-box" value="#7de888" />
-        <i class="fa-solid fa-copy copy-to-clipboard" onclick="copyHexToClipboard()"></i>
-        <br> 
-      </form>
-      <button onclick="pickerUseBelow()">Use Below</button>
+      <div id="color-picker">
+        <h2>Colour Picker</h2>
+        <div id="color-picker-palette"></div>
+        <form id="color-picker-form">
+          <label for="hue-slider">Hue:</label>
+          <input
+            type="range"
+            id="hue-slider"
+            min="0"
+            value="24"
+            max="360"
+            oninput="this.nextElementSibling.value = this.value"
+          />
+          <output>126</output><br />
+          <label for="hue-slider">Saturation:</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            id="saturation-slider"
+            step="0.01"
+            value="0.7"
+            oninput="this.nextElementSibling.value = this.value"
+          />
+          <output>0.7</output><br /><label for="hue-slider">Lightness:</label
+          ><input
+            type="range"
+            min="0"
+            max="1"
+            id="lightness-slider"
+            step="0.01"
+            value="0.7"
+            oninput="this.nextElementSibling.value = this.value"
+          />
+          <output>0.7</output>
+          <br /><label for="picker-hex-box">Hex Code:</label>
+          <input type="text" id="picker-hex-box" value="#7de888" />
+          <i
+            class="fa-solid fa-copy copy-to-clipboard"
+            onclick="copyHexToClipboard()"
+          ></i>
+          <br />
+        </form>
+        <button onclick="pickerUseBelow()">Use Below</button>
+      </div>
     </div>
-  </div>
     <div class="form-container">
       <div class="customise-options">
         <h2 class="form-header">Generate palette from an initial colour:</h2>
