@@ -3,7 +3,7 @@ import { wrap } from "./wrapText";
 export const colorPalette = () => {
   let baseColors;
   let margin = { top: 20, right: 10, bottom: 0, left: 120 };
-  let shades = [95,90,80,70,60,50,40,30,20,10]
+  let shades = [95,80,60,40,20,10]
   
   let padding = 10;
   const my = (selection) => {

@@ -4,7 +4,10 @@
     <title>Colour Palette</title>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
-
+    <script
+      src="https://kit.fontawesome.com/622a4eef00.js"
+      crossorigin="anonymous"
+    ></script>
     <style>
       .color-square {
         cursor: pointer;
@@ -21,6 +24,11 @@
         /* justify-content: center;
         align-items: center; */
         text-align: center;
+      }
+      rect:active{
+        stroke-width: 3;
+        stroke: black;
+
       }
       .flex {
         display: flex;
@@ -98,16 +106,55 @@
         flex-grow: 1;
         height: 500px;
       }
-      h4{
+      h4 {
         line-height: 1em;
         margin-top: 0px;
-        margin-bottom:0px;
+        margin-bottom: 0px;
       }
+      #color-picker {
+        width: 30%;
+        min-width: 250px;
+        /* height: 150px; */
+        background-color: rgb(232, 232, 232);
+        border-radius: 10px;
+        border: 1px solid black;
+        padding: 10px;
+        display:flex;
+        flex-direction: column;
+      }
+      #color-picker-palette {
+        width: 95%;
+        height: 50px;
+        margin: 10px auto;
+        border: 1px solid black;
+        background-color: #7de888;
+        border-radius: 10px;
+        flex-grow: 3;
+        flex-shrink:1;
+      }
+      .copy-to-clipboard{
+        cursor: pointer;
+        
+      }
+      
+      .copy-to-clipboard:active{
+        transform: scale(1.5)
+        
+      }
+      .intro-picker-container{
+        display:flex;
+        padding:10px;
+      }
+      .intro{
+        padding: 10px;
+      }
+      
     </style>
   </head>
   <body>
     <h1>Colour Palette Generator</h1>
-    <p>
+    <div class="intro-picker-container">
+    <div class="intro">    <p>
       This is a tool to generate a neatly displayed colour palette. Colour
       palettes can be created from a single initial colour (hex code) or
       existing colour palettes can be entered as a list of hex values.
@@ -140,10 +187,55 @@
       palette. You can also save the palette as an image or as a JSON object
       (buttons at bottom), perfect for future use.
     </p>
+  </div>
+
+    <div id="color-picker">
+      <h2>Colour Picker</h2>
+      <div id="color-picker-palette"></div>
+      <form id="color-picker-form">
+        <label for="hue-slider">Hue:</label>
+        <input
+          type="range"
+          id="hue-slider"
+          min="0"
+          value="24"
+          max="360"
+          oninput="this.nextElementSibling.value = this.value"
+        />
+        <output>126</output><br />
+        <label for="hue-slider">Saturation:</label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          id="saturation-slider"
+          step="0.01"
+          value="0.7"
+          oninput="this.nextElementSibling.value = this.value"
+        />
+        <output>0.7</output><br /><label for="hue-slider">Lightness:</label
+        ><input
+          type="range"
+          min="0"
+          max="1"
+          id="lightness-slider"
+          step="0.01"
+          value="0.7"
+          oninput="this.nextElementSibling.value = this.value"
+        />
+        <output>0.7</output>
+        <br /><label for="picker-hex-box">Hex Code:</label>
+        <input type="text" id="picker-hex-box" value="#7de888" />
+        <i class="fa-solid fa-copy copy-to-clipboard" onclick="copyHexToClipboard()"></i>
+        <br> 
+      </form>
+      <button onclick="pickerUseBelow()">Use Below</button>
+    </div>
+  </div>
     <div class="form-container">
       <div class="customise-options">
         <h2 class="form-header">Generate palette from an initial colour:</h2>
-        <form id="initial-color-submission">
+        <form id="initial-color-submission" name="initialColorSubmissionForm">
           <label for="hex-input">Input Initial colour hex:</label>
           <input type="text" id="hex-input" name="hexInput" required /><br />
           <label for="rotation"
@@ -200,15 +292,14 @@
           <br /><br />
           <h4>Want fewer shades?</h4>
           <label for="custom-lightness"
-            >Customise Lightness: Enter a comma separated list of
-            percentages </label
-          >
-         <br>
+            >Customise Lightness: Enter a comma separated list of percentages
+          </label>
+          <br />
           <input
             type="text"
             id="custom-lightness"
             name="customLightness"
-            value="95, 90, 80, 70, 60, 50, 40, 30, 20, 10"
+            value="95,  80, 60,  40,  20, 10"
           /><br /><br />
           <input type="submit" value="Submit" />
         </form>
@@ -225,20 +316,19 @@
             name="hexList"
             required
             size="40%"
-          /><br /><br>
+          /><br /><br />
           <h4>Want fewer shades?</h4>
           <label for="custom-lightness"
-            >Customise Lightness: Enter a comma separated list of
-            percentages </label
-          >
-         <br>
+            >Customise Lightness: Enter a comma separated list of percentages
+          </label>
+          <br />
           <input
             type="text"
             id="custom-lightness1"
             name="customLightness"
-            value="95, 90, 80, 70, 60, 50, 40, 30, 20, 10"
+            value="95, 80, 60, 40,20,10"
           /><br /><br />
-          
+
           <input type="submit" value="Submit" />
         </form>
       </div>

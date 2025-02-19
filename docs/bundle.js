@@ -2673,7 +2673,7 @@
   const colorPalette = () => {
     let baseColors;
     let margin = { top: 20, right: 10, bottom: 0, left: 120 };
-    let shades = [95,90,80,70,60,50,40,30,20,10];
+    let shades = [95,80,60,40,20,10];
     
     let padding = 10;
     const my = (selection) => {
@@ -4228,6 +4228,71 @@
     cbSvg.call(cbPalette);
   };
 
+  const colorPickerFormListener = (event) => {
+    const hue = document.getElementById("hue-slider").value;
+    const saturation = document.getElementById("saturation-slider").value;
+    const lightness = document.getElementById("lightness-slider").value;
+
+    const selectedColor = d3.hsl(hue, saturation, lightness);
+    document.getElementById("picker-hex-box").value = selectedColor.formatHex();
+
+    document.getElementById("color-picker-palette").style.backgroundColor =
+      selectedColor.formatHex();
+  };
+
+  function setInitialState(params) {
+    const hex = params.get("hexInput");
+    const hue = d3.hsl(hex);
+    const [h, s, l] = [hue.h, hue.s, hue.l];
+    console.log(h, s, l);
+    document.getElementById("color-picker-palette").style.backgroundColor = hex;
+    document.getElementById("hue-slider").value = h;
+    const outputH = document.getElementById("hue-slider").nextElementSibling;
+    outputH.value = h.toFixed(0);
+
+    document.getElementById("saturation-slider").value = s;
+    const outputS =
+      document.getElementById("saturation-slider").nextElementSibling;
+    outputS.value = s.toFixed(2);
+
+    document.getElementById("lightness-slider").value = l;
+    const outputL =
+      document.getElementById("lightness-slider").nextElementSibling;
+    outputL.value = l.toFixed(2);
+    document.getElementById("picker-hex-box").value = hex;
+
+    document.getElementById("hex-input").value = hex;
+    params.get("rotation")
+      ? (document.getElementById(params.get("rotation")).checked = true)
+      : console.log(params.get("rotation"));
+
+    document.getElementById("hex-list").value = params.get("hexList");
+
+    params.get("rotation") === "custom"
+      ? (document.getElementById("custom-rotation").value =
+          params.get("customRotation"))
+      : null;
+  }
+
+  function getLightness(params) {
+    let lightness;
+    let customLightnessId = "custom-lightness";
+    if (params.get("hexList")) {
+      customLightnessId = "custom-lightness1";
+    }
+    if (params.get("customLightness")) {
+      document.getElementById(customLightnessId).value =
+        params.get("customLightness");
+      lightness = params
+        .get("customLightness")
+        .split(",")
+        .map((d) => Number(d.trim()));
+    } else {
+      lightness = [95, 80, 60, 40, 20, 10];
+    }
+    return lightness;
+  }
+
   // import { blinder } from "color-blinder";
   //Set all the save button functions
   window.saveChart = saveChart;
@@ -4235,40 +4300,27 @@
 
   window.colorBlindCheck = plotColorBlind;
 
-  // Get current parameters
-  const params = new URLSearchParams(window.location.search);
+  document
+    .getElementById("color-picker-form")
+    .addEventListener("input", colorPickerFormListener);
+
+  window.copyHexToClipboard = () => {
+    const hex = document.getElementById("picker-hex-box").value;
+    navigator.clipboard.writeText(hex);
+  };
+
+  window.pickerUseBelow = () => {
+    const hex = document.getElementById("picker-hex-box").value;
+    document.getElementById("hex-input").value = hex;
+  };
 
   //Set current state of input parameters:
-  document.getElementById("hex-input").value = params.get("hexInput");
-  params.get("rotation")
-    ? (document.getElementById(params.get("rotation")).checked = true)
-    : console.log(params.get("rotation"));
+  const params = new URLSearchParams(window.location.search);
+  setInitialState(params);
 
-  document.getElementById("hex-list").value = params.get("hexList");
-
-  params.get("rotation") === "custom"
-    ? (document.getElementById("custom-rotation").value =
-        params.get("customRotation"))
-    : null;
-  // console.log(params.get("customLightness"))
-
-  let lightness;
-  let customLightnessId = "custom-lightness";
-  if (params.get("hexList")){
-    customLightnessId = "custom-lightness1";
-  }
-  if (params.get("customLightness")) {
-    document.getElementById(customLightnessId).value =
-      params.get("customLightness");
-    lightness = params
-      .get("customLightness")
-      .split(",")
-      .map((d) => Number(d.trim()));
-  } else {
-    lightness = [95, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-  }
-  // Create the list of colours
+  // Create the list of colours and shades
   const colors = getColors(params);
+  const lightness = getLightness(params);
 
   // Append the svg
   const svg = select("#palette")

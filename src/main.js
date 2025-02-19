@@ -5,6 +5,7 @@ import { getColors } from "./getColors";
 import { saveJson } from "./saveJson";
 
 import { plotColorBlind } from "./plotColorBlind";
+import { colorPickerFormListener, setInitialState, getLightness } from "./utils";
 // import { blinder } from "color-blinder";
 //Set all the save button functions
 window.saveChart = saveChart;
@@ -12,40 +13,27 @@ window.saveJson = saveJson;
 
 window.colorBlindCheck = plotColorBlind;
 
-// Get current parameters
-const params = new URLSearchParams(window.location.search);
+document
+  .getElementById("color-picker-form")
+  .addEventListener("input", colorPickerFormListener);
+
+window.copyHexToClipboard = () => {
+  const hex = document.getElementById("picker-hex-box").value;
+  navigator.clipboard.writeText(hex);
+};
+
+window.pickerUseBelow = () => {
+  const hex = document.getElementById("picker-hex-box").value;
+  document.getElementById("hex-input").value = hex;
+};
 
 //Set current state of input parameters:
-document.getElementById("hex-input").value = params.get("hexInput");
-params.get("rotation")
-  ? (document.getElementById(params.get("rotation")).checked = true)
-  : console.log(params.get("rotation"));
+const params = new URLSearchParams(window.location.search);
+setInitialState(params);
 
-document.getElementById("hex-list").value = params.get("hexList");
-
-params.get("rotation") === "custom"
-  ? (document.getElementById("custom-rotation").value =
-      params.get("customRotation"))
-  : null;
-// console.log(params.get("customLightness"))
-
-let lightness;
-let customLightnessId = "custom-lightness"
-if (params.get("hexList")){
-  customLightnessId = "custom-lightness1"
-}
-if (params.get("customLightness")) {
-  document.getElementById(customLightnessId).value =
-    params.get("customLightness");
-  lightness = params
-    .get("customLightness")
-    .split(",")
-    .map((d) => Number(d.trim()));
-} else {
-  lightness = [95, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-}
-// Create the list of colours
+// Create the list of colours and shades
 const colors = getColors(params);
+const lightness = getLightness(params)
 
 // Append the svg
 const svg = d3
