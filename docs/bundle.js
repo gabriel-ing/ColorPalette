@@ -2992,8 +2992,8 @@
   };
 
   const setDefaultColors = (colors) => {
-    const rotations = [-30, 30, 120, 180, 240];
-    const originalColorHex = "#afdef4";
+    const rotations = [60, 120, 180, 240, 300];
+    const originalColorHex = "#7de888";
     const defaultColors = getHues(originalColorHex, rotations);
     return defaultColors;
   };

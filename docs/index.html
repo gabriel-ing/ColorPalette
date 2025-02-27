@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Colour Palette</title>
-
+    <link rel="icon" href="color-palette.png" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script
       src="https://kit.fontawesome.com/622a4eef00.js"
@@ -27,7 +27,7 @@
       }
       rect:active {
         stroke-width: 3;
-        stroke: black;
+        /* stroke: black; */
       }
       .flex {
         display: flex;
@@ -86,10 +86,11 @@
         font-weight: 400;
       }
       #cb-options {
-        width: 25%;
+        /* width: 25%; */
         min-width: 320px;
         margin: auto 0px;
         flex-shrink: 1;
+        flex-grow: 0;
       }
       table {
         font-size: 12px;
@@ -145,10 +146,20 @@
       .intro {
         padding: 10px;
       }
+      #page-title {
+        margin-left: 10px;
+        line-height: 1em;
+        margin-bottom: 0px;
+        text-align: center;
+        font-size: 40px;
+      }
+      .attributions{
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-    <h1>Colour Palette Generator</h1>
+    <h1 id="page-title">Colour Palette Generator</h1>
     <div class="intro-picker-container">
       <div class="intro">
         <p>
@@ -177,7 +188,8 @@
         <p>
           Be aware, the saturation value is constant throughout the colour
           palette, which means over or under saturated initial colours may
-          create poor colour palettes.
+          create poor colour palettes. I recommend starting with saturation
+          values of about 0.5-0.8, depending on use case.
         </p>
         <p>
           The url created from generating the colour has all the parameters to
@@ -236,7 +248,11 @@
     <div class="form-container">
       <div class="customise-options">
         <h2 class="form-header">Generate palette from an initial colour:</h2>
-        <form id="initial-color-submission" name="initialColorSubmissionForm">
+        <form
+          id="initial-color-submission"
+          name="initialColorSubmissionForm"
+          onSubmit="this.scrollPosition.value=document.body.scrollTop"
+        >
           <label for="hex-input">Input Initial colour hex:</label>
           <input type="text" id="hex-input" name="hexInput" required /><br />
           <label for="rotation"
@@ -245,11 +261,14 @@
           ><br />
           <input
             type="radio"
-            id="default1"
+            id="divergent"
             name="rotation"
-            value="default1"
+            value="divergent"
             checked
           />
+          <label for="divergent">Divergent [60, 120, 180, 240, 300]</label
+          ><br />
+          <input type="radio" id="default1" name="rotation" value="default1" />
           <label for="default1">Default 1 [-30, 30, 120, 180, 240]</label><br />
           <input type="radio" id="default2" name="rotation" value="default2" />
           <label for="default2">Default 2 [-60, 60, 150, 180, 210]</label><br />
@@ -260,14 +279,6 @@
             value="analogous"
           />
           <label for="analogous">Analogous [20, 40, 60, 80, 100,120]</label
-          ><br />
-          <input
-            type="radio"
-            id="divergent"
-            name="rotation"
-            value="divergent"
-          />
-          <label for="divergent">Divergent [60, 120, 180, 240, 300]</label
           ><br />
           <input
             type="radio"
@@ -355,8 +366,10 @@
           common types of colour-blindness, as the proportions of the others are
           very low (<0.01%). I have taken the proportions from
           <a href="https://en.wikipedia.org/wiki/Color_blindness#Epidemiology"
-            >wikipedia.</a
+            >wikipedia</a
           >
+          - note that colour-blindness disproportionately affects men, so only
+          this proportions are show.
         </p>
         <table>
           <thead>
@@ -426,6 +439,18 @@
       <button onclick="colorBlindCheck('achromatopsia')">Achromatopsia</button> -->
       </div>
       <div class="palette" id="cb-chart"></div>
+    </div>
+    <div class="attributions">
+      <p >
+        Created by Gabriel Ing                    
+        <br>
+        Favicon from:
+        <a
+          href="https://www.flaticon.com/free-icons/school"
+          title="school icons"
+          >School icons created by Freepik - Flaticon</a
+        >
+      </p>
     </div>
     <div id="tooltip"></div>
 
